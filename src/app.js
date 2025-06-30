@@ -2,6 +2,9 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import cinemasRoutes from "./routes/cinemas.routes.js";
+import complaintsRoutes from "./routes/complaints.routes.js";
+
 
 import authRoutes from "./routes/auth.routes.js";
 import taksRoutes from "./routes/tasks.routes.js";
@@ -21,6 +24,9 @@ app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
 app.use("/api", taksRoutes);
+
+app.use("/api/cinemas", cinemasRoutes);
+app.use("/api/complaints", complaintsRoutes);
 
 if (process.env.NODE_ENV === "production") {
   const path = await import("path");

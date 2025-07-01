@@ -2,15 +2,23 @@ import { useEffect } from "react";
 import { useCinemas } from "../context/cinemasContext";
 import { CinemaCard } from "../components/cinemas/CinemaCard";
 import { ImFileEmpty } from "react-icons/im";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 export function CinemasPage() {
-  const { cinemas, getCinemas } = useCinemas();
+  const { cinemas, getCinemas, deleteCinema, shouldReload } = useCinemas();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     getCinemas();
-  }, []);
-
+  }, [location.pathname]);
+  
+  useEffect(() => {
+    if (shouldReload) {
+      getCinemas();
+    }
+  }, [shouldReload, getCinemas]);
+  
   return (
     <div className="p-4">
       <div className="flex justify-between mb-4">
@@ -41,7 +49,12 @@ export function CinemasPage() {
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-2">
           {cinemas.map((cinema) => (
-            <CinemaCard cinema={cinema} key={cinema._id} />
+            <CinemaCard
+              cinema={cinema}
+              key={cinema._id}
+              onEdit={() => navigate(`/cinemas/${cinema._id}`)}
+              onDelete={() => deleteCinema(cinema._id)}
+            />
           ))}
         </div>
       )}

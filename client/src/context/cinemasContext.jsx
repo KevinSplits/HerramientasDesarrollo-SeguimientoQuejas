@@ -17,16 +17,18 @@ export const useCinemas = () => {
 
 export function CinemaProvider({ children }) {
   const [cinemas, setCinemas] = useState([]);
+  const [shouldReload, setShouldReload] = useState(false);
 
   const getCinemas = async () => {
     const res = await getCinemasRequest();
     setCinemas(res.data);
+    setShouldReload(false); // Resetea el flag después de recargar
   };
 
   const deleteCinema = async (id) => {
     try {
       const res = await deleteCinemaRequest(id);
-      if (res.status === 204) setCinemas(cinemas.filter((cinema) => cinema._id !== id));
+      if (res.status === 204) setShouldReload(true);
     } catch (error) {
       console.log(error);
     }
@@ -34,8 +36,8 @@ export function CinemaProvider({ children }) {
 
   const createCinema = async (cinema) => {
     try {
-      const res = await createCinemaRequest(cinema);
-      console.log(res.data);
+      await createCinemaRequest(cinema);
+      setShouldReload(true);
     } catch (error) {
       console.log(error);
     }
@@ -53,6 +55,7 @@ export function CinemaProvider({ children }) {
   const updateCinema = async (id, cinema) => {
     try {
       await updateCinemaRequest(id, cinema);
+      setShouldReload(true);
     } catch (error) {
       console.error(error);
     }
@@ -67,6 +70,7 @@ export function CinemaProvider({ children }) {
         createCinema,
         getCinema,
         updateCinema,
+        shouldReload,
       }}
     >
       {children}

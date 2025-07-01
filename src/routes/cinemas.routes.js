@@ -7,17 +7,30 @@ import {
 } from "../controllers/cinema.controller.js";
 import { auth } from "../middlewares/auth.middleware.js";
 import { validateSchema } from "../middlewares/validator.middleware.js";
-import { createCinemaSchema } from "../schemas/cinema.schema.js";
+import { createCinemaSchema, updateCinemaSchema } from "../schemas/cinema.schema.js";
 
 const router = Router();
 
+// Obtener todos los cines (requiere autenticación)
 router.get("/", auth, getCinemas);
 
-// Cualquiera que esté autenticado puede modificar datos de cines
-router.post("/", auth, validateSchema(createCinemaSchema), createCinema);
+// Crear un cine (requiere autenticación y validación de datos)
+router.post(
+  "/",
+  auth,
+  validateSchema(createCinemaSchema), // Valida los datos enviados en el cuerpo
+  createCinema
+);
 
-router.put("/:id", auth, updateCinema);
+// Actualizar un cine (requiere autenticación y validación de datos)
+router.put(
+  "/:id",
+  auth,
+  validateSchema(updateCinemaSchema), // Valida los datos enviados en el cuerpo
+  updateCinema
+);
 
+// Eliminar un cine (requiere autenticación)
 router.delete("/:id", auth, deleteCinema);
 
 export default router;

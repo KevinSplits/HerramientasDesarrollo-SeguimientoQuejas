@@ -15,7 +15,36 @@ export const getComplaints = async (req, res) => {
 // Crear nueva queja
 export const createComplaint = async (req, res) => {
   try {
-    const { title, description, category, cinema } = req.body;
+    const {
+      title,
+      description,
+      category,
+      cinema,
+      cleaningArea,
+      cleaningType,
+      cleaningStaffPresent,
+      attentionArea,
+      staffBehavior,
+      staffDescription,
+      roomNumber,
+      technicalIssue,
+      movieInterrupted,
+      productAffected,
+      foodIssue,
+      purchaseDate,
+      purchaseLocation,
+      transactionNumber,
+      paymentIssue,
+      infrastructureIssue,
+      reportedToStaff,
+      attachEvidence,
+      securityIncident,
+      securityIntervention,
+      physicalRisk,
+      platform,
+      appIssue,
+      appScreenshot,
+    } = req.body;
 
     // Validar ObjectId del cine
     if (!mongoose.Types.ObjectId.isValid(cinema)) {
@@ -28,12 +57,37 @@ export const createComplaint = async (req, res) => {
       return res.status(404).json({ message: "Cine no encontrado" });
     }
 
+    // Crear la nueva queja con los campos dinámicos
     const newComplaint = new Complaint({
       title,
       description,
       category,
       cinema,
       user: req.user.id,
+      cleaningArea: category === "limpieza" ? cleaningArea : undefined,
+      cleaningType: category === "limpieza" ? cleaningType : undefined,
+      cleaningStaffPresent: category === "limpieza" ? cleaningStaffPresent : undefined,
+      attentionArea: category === "atencion" ? attentionArea : undefined,
+      staffBehavior: category === "atencion" ? staffBehavior : undefined,
+      staffDescription: category === "atencion" ? staffDescription : undefined,
+      roomNumber: category === "fallas-tecnicas" ? roomNumber : undefined,
+      technicalIssue: category === "fallas-tecnicas" ? technicalIssue : undefined,
+      movieInterrupted: category === "fallas-tecnicas" ? movieInterrupted : undefined,
+      productAffected: category === "alimentos-bebidas" ? productAffected : undefined,
+      foodIssue: category === "alimentos-bebidas" ? foodIssue : undefined,
+      purchaseDate: category === "alimentos-bebidas" ? purchaseDate : undefined,
+      purchaseLocation: category === "compra-entradas" ? purchaseLocation : undefined,
+      transactionNumber: category === "compra-entradas" ? transactionNumber : undefined,
+      paymentIssue: category === "compra-entradas" ? paymentIssue : undefined,
+      infrastructureIssue: category === "infraestructura" ? infrastructureIssue : undefined,
+      reportedToStaff: category === "infraestructura" ? reportedToStaff : undefined,
+      attachEvidence: category === "infraestructura" ? attachEvidence : undefined,
+      securityIncident: category === "seguridad" ? securityIncident : undefined,
+      securityIntervention: category === "seguridad" ? securityIntervention : undefined,
+      physicalRisk: category === "seguridad" ? physicalRisk : undefined,
+      platform: category === "fallas-app" ? platform : undefined,
+      appIssue: category === "fallas-app" ? appIssue : undefined,
+      appScreenshot: category === "fallas-app" ? appScreenshot : undefined,
     });
 
     await newComplaint.save();
@@ -47,60 +101,119 @@ export const createComplaint = async (req, res) => {
 export const getComplaint = async (req, res) => {
   try {
     const complaint = await Complaint.findById(req.params.id).populate("cinema");
-    if (!complaint) return res.status(404).json({ message: "Queja no encontrada" });
-
-    if (complaint.user.toString() !== req.user.id)
-      return res.status(403).json({ message: "No autorizado" });
-
-    return res.json(complaint);
+    if (!complaint) {
+      return res.status(404).json({ message: "Queja no encontrada" });
+    }
+    res.json(complaint);
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
 };
 
-// Actualizar cualquier campo de una queja (sin verificar rol)
+// Actualizar una queja
 export const updateComplaint = async (req, res) => {
   try {
-    const { cinema } = req.body;
+    const { id } = req.params;
+    const {
+      title,
+      description,
+      category,
+      cinema,
+      cleaningArea,
+      cleaningType,
+      cleaningStaffPresent,
+      attentionArea,
+      staffBehavior,
+      staffDescription,
+      roomNumber,
+      technicalIssue,
+      movieInterrupted,
+      productAffected,
+      foodIssue,
+      purchaseDate,
+      purchaseLocation,
+      transactionNumber,
+      paymentIssue,
+      infrastructureIssue,
+      reportedToStaff,
+      attachEvidence,
+      securityIncident,
+      securityIntervention,
+      physicalRisk,
+      platform,
+      appIssue,
+      appScreenshot,
+    } = req.body;
 
-    // Si se actualiza el cine, validar
-    if (cinema) {
-      if (!mongoose.Types.ObjectId.isValid(cinema)) {
-        return res.status(400).json({ message: "ID de cine inválido" });
-      }
-
-      const existingCinema = await Cinema.findById(cinema);
-      if (!existingCinema) {
-        return res.status(404).json({ message: "Cine no encontrado" });
-      }
+    // Validar ObjectId del cine
+    if (!mongoose.Types.ObjectId.isValid(cinema)) {
+      return res.status(400).json({ message: "ID de cine inválido" });
     }
 
-    const updated = await Complaint.findByIdAndUpdate(
-      req.params.id,
-      req.body,
+    // Verificar que el cine exista
+    const existingCinema = await Cinema.findById(cinema);
+    if (!existingCinema) {
+      return res.status(404).json({ message: "Cine no encontrado" });
+    }
+
+    // Actualizar la queja con los campos dinámicos
+    const updatedComplaint = await Complaint.findByIdAndUpdate(
+      id,
+      {
+        title,
+        description,
+        category,
+        cinema,
+        cleaningArea: category === "limpieza" ? cleaningArea : undefined,
+        cleaningType: category === "limpieza" ? cleaningType : undefined,
+        cleaningStaffPresent: category === "limpieza" ? cleaningStaffPresent : undefined,
+        attentionArea: category === "atencion" ? attentionArea : undefined,
+        staffBehavior: category === "atencion" ? staffBehavior : undefined,
+        staffDescription: category === "atencion" ? staffDescription : undefined,
+        roomNumber: category === "fallas-tecnicas" ? roomNumber : undefined,
+        technicalIssue: category === "fallas-tecnicas" ? technicalIssue : undefined,
+        movieInterrupted: category === "fallas-tecnicas" ? movieInterrupted : undefined,
+        productAffected: category === "alimentos-bebidas" ? productAffected : undefined,
+        foodIssue: category === "alimentos-bebidas" ? foodIssue : undefined,
+        purchaseDate: category === "alimentos-bebidas" ? purchaseDate : undefined,
+        purchaseLocation: category === "compra-entradas" ? purchaseLocation : undefined,
+        transactionNumber: category === "compra-entradas" ? transactionNumber : undefined,
+        paymentIssue: category === "compra-entradas" ? paymentIssue : undefined,
+        infrastructureIssue: category === "infraestructura" ? infrastructureIssue : undefined,
+        reportedToStaff: category === "infraestructura" ? reportedToStaff : undefined,
+        attachEvidence: category === "infraestructura" ? attachEvidence : undefined,
+        securityIncident: category === "seguridad" ? securityIncident : undefined,
+        securityIntervention: category === "seguridad" ? securityIntervention : undefined,
+        physicalRisk: category === "seguridad" ? physicalRisk : undefined,
+        platform: category === "fallas-app" ? platform : undefined,
+        appIssue: category === "fallas-app" ? appIssue : undefined,
+        appScreenshot: category === "fallas-app" ? appScreenshot : undefined,
+      },
       { new: true }
     );
 
-    if (!updated) return res.status(404).json({ message: "Queja no encontrada" });
+    if (!updatedComplaint) {
+      return res.status(404).json({ message: "Queja no encontrada" });
+    }
 
-    res.json(updated);
+    res.json(updatedComplaint);
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
 };
 
-// Eliminar una queja (solo propietario puede eliminar)
+// Eliminar una queja
 export const deleteComplaint = async (req, res) => {
   try {
-    const complaint = await Complaint.findById(req.params.id);
-    if (!complaint) return res.status(404).json({ message: "Queja no encontrada" });
+    const { id } = req.params;
 
-    if (complaint.user.toString() !== req.user.id) {
-      return res.status(403).json({ message: "No autorizado para eliminar esta queja" });
+    const deletedComplaint = await Complaint.findByIdAndDelete(id);
+
+    if (!deletedComplaint) {
+      return res.status(404).json({ message: "Queja no encontrada" });
     }
 
-    await complaint.deleteOne();
-    res.sendStatus(204);
+    res.json({ message: "Queja eliminada correctamente" });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

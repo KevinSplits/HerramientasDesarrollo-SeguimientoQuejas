@@ -16,10 +16,10 @@ Quejas para Locales de Cines</Link>
         {isAuthenticated ? (
           <>
             <li>
-              Bienvenido <strong>{user.username}</strong>
+              ¡Bienvenido, usuario "<strong>{user.username}"!</strong>
             </li>
             <li>
-              <Link to="/" onClick={() => logout()}>
+              <Link className="bg-indigo-600 hover:bg-indigo-800 text-white px-4 py-2 rounded" to="/" onClick={() => logout()}>
                 Cerrar Sesión
               </Link>
             </li>

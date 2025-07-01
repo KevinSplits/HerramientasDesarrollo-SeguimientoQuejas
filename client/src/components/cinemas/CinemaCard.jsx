@@ -1,12 +1,17 @@
-import { Card, ButtonLink, Button } from "../ui"; // IMPORTAR Card, ButtonLink y Button
+import { Card, ButtonLink, Button } from "../ui";
 import { Link } from "react-router-dom";
 
 export function CinemaCard({ cinema, onDelete }) {
   return (
     <Card>
-      <header className="flex justify-between items-start">
-        <h2 className="text-2xl font-bold">Cine {cinema.name}</h2>
-        <div className="flex gap-2">
+      <header className="flex justify-between items-start gap-4">
+        {/* Nombre del cine con truncado para evitar que se desborde */}
+        <h2 className="text-2xl font-bold max-w-full">
+          Cine {cinema.name}
+        </h2>
+
+        {/* Botones con tamaño fijo */}
+        <div className="flex gap-2 flex-shrink-0">
           <ButtonLink to={`/cinemas/${cinema._id}`}>Editar</ButtonLink>
           <Button
             onClick={() => {

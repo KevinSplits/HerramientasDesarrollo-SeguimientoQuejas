@@ -27,15 +27,23 @@ export function CinemaFormPage() {
   useEffect(() => {
     const loadCinema = async () => {
       if (params.id) {
-        const cinema = await getCinema(params.id);
-        setValue("name", cinema.name);
-        setValue("address", cinema.address);
-        setValue("city", cinema.city);
-        setValue("phone", cinema.phone);
+        try {
+          const cinema = await getCinema(params.id);
+          if (cinema) {
+            setValue("name", cinema.name);
+            setValue("address", cinema.address);
+            setValue("city", cinema.city);
+            setValue("phone", cinema.phone);
+          } else {
+            console.error("No se encontró el cine con el ID proporcionado.");
+          }
+        } catch (error) {
+          console.error("Error al cargar el cine:", error);
+        }
       }
     };
     loadCinema();
-  }, []);
+  }, [params.id, getCinema, setValue]);
 
   return (
     <Card>
@@ -53,7 +61,7 @@ export function CinemaFormPage() {
         <Label htmlFor="phone">Teléfono</Label>
         <Input {...register("phone", { required: true })} />
 
-        <Button>Guardar</Button>
+        <Button type="submit" className="bg-rose-500 hover:bg-rose-600 text-white px-4 py-2 rounded">Guardar</Button>
       </form>
     </Card>
   );

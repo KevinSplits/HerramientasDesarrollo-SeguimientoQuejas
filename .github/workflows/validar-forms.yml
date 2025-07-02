@@ -38,4 +38,5 @@ jobs:
     needs: analizar-resultados
     steps:
       - name: Confirmar flujo exitoso
-        run: echo "✅ Todo validado correctamente: tests + lint"
+        run: echo "Todo validado correctamente"
+

@@ -14,7 +14,7 @@ jobs:
 
       - name: Instalar dependencias del backend
         run: npm install
-        working-directory: ./server  # Cambia si tu backend está en otra carpeta
+        working-directory: .
 
       - name: Ejecutar tests backend (opcional)
         run: npm test

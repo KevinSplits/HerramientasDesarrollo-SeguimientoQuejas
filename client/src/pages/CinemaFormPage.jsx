@@ -40,7 +40,6 @@ export function CinemaFormPage() {
       setLoading(false);
     };
     loadCinema();
-    // eslint-disable-next-line
   }, [params.id, getCinema, reset]);
 
   const onSubmit = async (data) => {

@@ -1,0 +1,41 @@
+name: CI - Validar formularios
+
+on:
+  push:
+    branches: [main, dev-pablo]
+  pull_request:
+    branches: [main, dev-pablo]
+
+jobs:
+  test-validacion-formularios:
+    name: Test validación de formularios
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar dependencias
+        run: npm install
+        working-directory: ./client
+      - name: Ejecutar tests
+        run: npm test
+        working-directory: ./client
+
+  analizar-resultados:
+    name: Lint frontend
+    runs-on: ubuntu-latest
+    needs: test-validacion-formularios
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar dependencias
+        run: npm install
+        working-directory: ./client
+      - name: Ejecutar ESLint
+        run: npm run lint
+        working-directory: ./client
+
+  validacion-exitosa:
+    name: Validación Exitosa
+    runs-on: ubuntu-latest
+    needs: analizar-resultados
+    steps:
+      - name: Confirmar flujo exitoso
+        run: echo "✅ Todo validado correctamente: tests + lint"

@@ -1,0 +1,38 @@
+name: CI - Creación de cuentas
+
+on:
+  push:
+    branches: [main, dev-pablo]
+  pull_request:
+    branches: [main, dev-pablo]
+
+jobs:
+  crear-cuentas:
+    name: Crear cuentas
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar dependencias backend
+        run: npm install
+      - name: Ejecutar test de creación de cuentas
+        run: npx vitest run tests/auth.test.js
+
+  validar-cuentas:
+    name: Validar cuentas
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar dependencias frontend
+        run: npm install
+        working-directory: ./client
+      - name: Ejecutar test de validación
+        run: npx vitest run tests/formValidation.test.js
+        working-directory: ./client
+
+  logeo-exitoso:
+    name: Logeo exitoso
+    runs-on: ubuntu-latest
+    needs: [crear-cuentas, validar-cuentas]  # Espera que ambos finalicen
+    steps:
+      - name: Confirmar logeo exitoso
+        run: echo "Todos los tests pasaron. Logeo exitoso."

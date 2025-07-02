@@ -3,9 +3,9 @@ import App from './App'
 import { describe, it, expect } from 'vitest'
 
 describe('App', () => {
-  it('renders learn react link', () => {
+  it('renders main heading text', () => {
     render(<App />)
-    const linkElement = screen.getByText(/learn react/i)
-    expect(linkElement).toBeInTheDocument()
+    const heading = screen.getByText(/Sistema de Gestión de Quejas para Cines/i)
+    expect(heading).toBeInTheDocument()
   })
 })

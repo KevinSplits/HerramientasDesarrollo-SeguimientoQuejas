@@ -1,0 +1,47 @@
+name: CD - Deploy backend y frontend a Render
+
+on:
+  push:
+    branches: [main]  # Se ejecuta cuando haces push a main
+
+jobs:
+  deploy-backend:
+    name: Deploy Backend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Instalar dependencias del backend
+        run: npm install
+        working-directory: ./server  # Cambia si tu backend está en otra carpeta
+
+      - name: Ejecutar tests backend (opcional)
+        run: npm test
+        working-directory: ./server
+
+      - name: Llamar al webhook de Render (backend)
+        run: curl "$RENDER_BACKEND_WEBHOOK"
+        env:
+          RENDER_BACKEND_WEBHOOK: ${{ secrets.RENDER_BACKEND_WEBHOOK }}
+
+  deploy-frontend:
+    name: Deploy Frontend
+    runs-on: ubuntu-latest
+    needs: deploy-backend  # Espera que se despliegue el backend
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Instalar dependencias del frontend
+        run: npm install
+        working-directory: ./client
+
+      - name: Build del frontend
+        run: npm run build
+        working-directory: ./client
+
+      - name: Llamar al webhook de Render (frontend)
+        run: curl "$RENDER_FRONTEND_WEBHOOK"
+        env:
+          RENDER_FRONTEND_WEBHOOK: ${{ secrets.RENDER_FRONTEND_WEBHOOK }}

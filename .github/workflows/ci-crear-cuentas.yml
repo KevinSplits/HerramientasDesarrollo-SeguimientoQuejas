@@ -14,4 +14,4 @@ jobs:
       - name: Instalar dependencias backend
         run: npm install
       - name: Test crear cuentas
-        run: npm test 
+        run: npm test

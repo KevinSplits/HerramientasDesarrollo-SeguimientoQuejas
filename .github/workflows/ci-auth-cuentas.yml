@@ -1,4 +1,4 @@
-name: CI - Crear y Validar cuentas
+name: CI - Crear y Validar cuentas de logueo
 
 on:
   push:

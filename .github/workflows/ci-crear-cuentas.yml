@@ -14,4 +14,13 @@ jobs:
       - name: Instalar dependencias backend
         run: npm install
       - name: Test crear cuentas
-        run: npm test -- tests/auth.test.js
+        run: npm test
+
+  validar-cuentas:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar dependencias backend
+        run: npm install
+      - name: Validar lógica de cuentas
+        run: npm run 

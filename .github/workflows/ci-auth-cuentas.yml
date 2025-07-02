@@ -28,7 +28,7 @@ jobs:
       - name: Ejecutar test validar cuenta
         run: npm test
         working-directory: ./client
-
+        
   logeo-exitoso:
     name: Logeo exitoso
     runs-on: ubuntu-latest

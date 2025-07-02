@@ -1,4 +1,4 @@
-name: CI - Creación de cuentas
+name: Build de backend y frontend
 
 on:
   push:
@@ -7,32 +7,38 @@ on:
     branches: [main, dev-pablo]
 
 jobs:
-  crear-cuentas:
-    name: Crear cuentas
+  build-backend:
+    name: Build Backend
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Instalar dependencias backend
         run: npm install
-      - name: Ejecutar test de creación de cuentas
+      - name: Build backend
+        run: npm run build
+      - name: Ejecutar test backend
         run: npm test
 
-  validar-cuentas:
-    name: Validar cuentas
+  build-frontend:
+    name: Build Frontend
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Instalar dependencias frontend
         run: npm install
         working-directory: ./client
-      - name: Ejecutar test de validación
+      - name: Build frontend
+        run: npm run build
+        working-directory: ./client
+      - name: Ejecutar test frontend
         run: npm test
         working-directory: ./client
 
   logeo-exitoso:
     name: Logeo exitoso
     runs-on: ubuntu-latest
-    needs: [crear-cuentas, validar-cuentas]  # Espera que ambos finalicen
+    needs: [build-backend, build-frontend]
     steps:
       - name: Confirmar logeo exitoso
-        run: echo "Todos los tests pasaron. Logeo exitoso."
+        run: echo "Build y tests exitosos en backend y frontend."
+

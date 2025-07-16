@@ -15,7 +15,7 @@ jobs:
 
       - name: 📦 Instalar dependencias del backend
         run: npm install
-        working-directory: .  # o ajusta si tu backend está en subcarpeta
+        working-directory: .  
 
       - name: 🧪 Ejecutar pruebas del backend
         run: npm test || echo "⚠️ Las pruebas del backend fallaron, pero seguimos..."
@@ -32,11 +32,11 @@ jobs:
 
       - name: 📦 Instalar dependencias del frontend
         run: npm install
-        working-directory: ./frontend-client  # ajusta si tu front está en otra carpeta
+        working-directory: ./client  
 
       - name: 🧱 Build del frontend
         run: npm run build
-        working-directory: ./frontend-client
+        working-directory: ./client
 
   deploy:
     name: 🚀 Deploy a Render

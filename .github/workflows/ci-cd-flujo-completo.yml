@@ -1,0 +1,98 @@
+name: CI/CD - Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  crear-cuenta:
+    name: 🧪 Crear Cuenta
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 📦 Instalar dependencias backend
+        run: npm install
+      - name: ✅ Test crear cuenta
+        run: npm test
+
+  validar-cuenta:
+    name: 🧪 Validar Formulario
+    runs-on: ubuntu-latest
+    needs: crear-cuenta
+    steps:
+      - uses: actions/checkout@v4
+      - name: 📦 Instalar dependencias frontend
+        run: npm install
+        working-directory: ./client
+      - name: ✅ Test validación de formularios
+        run: npm test
+        working-directory: ./client
+
+  logeo-exitoso:
+    name: 🔐 Logeo Exitoso
+    runs-on: ubuntu-latest
+    needs: [crear-cuenta, validar-cuenta]
+    steps:
+      - name: 🏁 Confirmar logeo exitoso
+        run: echo "✔ Logeo exitoso. Flujo completado."
+
+  lint-frontend:
+    name: 🧹 Lint Frontend
+    runs-on: ubuntu-latest
+    needs: logeo-exitoso
+    steps:
+      - uses: actions/checkout@v4
+      - name: 📦 Instalar dependencias
+        run: npm install
+        working-directory: ./client
+      - name: ✅ Ejecutar ESLint
+        run: npm run lint
+        working-directory: ./client
+
+  build-backend:
+    name: 🏗 Build Backend
+    runs-on: ubuntu-latest
+    needs: lint-frontend
+    steps:
+      - uses: actions/checkout@v4
+      - name: 📦 Instalar dependencias backend
+        run: npm install
+      - name: 🧪 Ejecutar test backend
+        run: npm test
+
+  build-frontend:
+    name: 🏗 Build Frontend
+    runs-on: ubuntu-latest
+    needs: lint-frontend
+    steps:
+      - uses: actions/checkout@v4
+      - name: 📦 Instalar dependencias frontend
+        run: npm install
+        working-directory: ./client
+      - name: 🧱 Build frontend
+        run: npm run build
+        working-directory: ./client
+      - name: 🧪 Ejecutar test frontend
+        run: npm test
+        working-directory: ./client
+
+  build-exitoso:
+    name: ✅ Build exitoso
+    runs-on: ubuntu-latest
+    needs: [build-backend, build-frontend]
+    steps:
+      - name: 🎉 Confirmar build exitoso
+        run: echo "✔ Build y tests exitosos en backend y frontend."
+
+  deploy:
+    name: 🚀 Deploy a Render
+    runs-on: ubuntu-latest
+    needs: build-exitoso
+    steps:
+      - name: 📌 Desplegar Backend a Render
+        run: curl -X POST ${{ secrets.RENDER_BACKEND_DEPLOY_HOOK }}
+
+      - name: 📌 Desplegar Frontend a Render
+        run: curl -X POST ${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK }}

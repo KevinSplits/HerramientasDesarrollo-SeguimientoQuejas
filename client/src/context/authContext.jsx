@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { createContext, useContext, useState } from "react";
+import { useEffect, useState, createContext, useContext } from "react";
 import { loginRequest, registerRequest, verifyTokenRequest } from "../api/auth";
 import Cookies from "js-cookie";
 
@@ -17,7 +16,7 @@ export const AuthProvider = ({ children }) => {
   const [errors, setErrors] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // clear errors after 5 seconds
+  // Limpiar errores después de 5 segundos
   useEffect(() => {
     if (errors.length > 0) {
       const timer = setTimeout(() => {
@@ -33,6 +32,7 @@ export const AuthProvider = ({ children }) => {
       if (res.status === 200) {
         setUser(res.data);
         setIsAuthenticated(true);
+        localStorage.setItem("userId", res.data._id); // ✅ guardar ID
       }
     } catch (error) {
       console.log(error.response.data);
@@ -43,8 +43,10 @@ export const AuthProvider = ({ children }) => {
   const signin = async (user) => {
     try {
       const res = await loginRequest(user);
+      console.log("🧪 Resultado login:", res.data);
       setUser(res.data);
       setIsAuthenticated(true);
+      localStorage.setItem("userId", res.data._id); // ✅ guardar ID
     } catch (error) {
       console.log(error);
       // setErrors(error.response.data.message);
@@ -53,6 +55,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     Cookies.remove("token");
+    localStorage.removeItem("userId"); // ✅ eliminar ID al salir
     setUser(null);
     setIsAuthenticated(false);
   };
@@ -68,16 +71,22 @@ export const AuthProvider = ({ children }) => {
 
       try {
         const res = await verifyTokenRequest(cookies.token);
-        console.log(res);
-        if (!res.data) return setIsAuthenticated(false);
+        if (!res.data) {
+          setIsAuthenticated(false);
+          setLoading(false);
+          return;
+        }
+
         setIsAuthenticated(true);
         setUser(res.data);
+        localStorage.setItem("userId", res.data._id); // ✅ guardar ID tras verificación
         setLoading(false);
       } catch (error) {
         setIsAuthenticated(false);
         setLoading(false);
       }
     };
+
     checkLogin();
   }, []);
 

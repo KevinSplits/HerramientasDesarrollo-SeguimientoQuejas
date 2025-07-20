@@ -40,7 +40,9 @@ export function ComplaintsPage() {
         </div>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-2">
-          {complaints.map((complaint) => (
+          {complaints
+          .filter((complaint) => !complaint.status || complaint.status !== "resuelta")
+          .map((complaint) => (
             <ComplaintCard
               key={complaint._id}
               complaint={complaint}

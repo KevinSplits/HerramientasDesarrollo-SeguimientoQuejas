@@ -40,7 +40,7 @@ export const register = async (req, res) => {
     });
 
     res.json({
-      id: userSaved._id,
+      _id: userSaved._id,
       username: userSaved.username,
       email: userSaved.email,
     });
@@ -78,7 +78,7 @@ export const login = async (req, res) => {
     });
 
     res.json({
-      id: userFound._id,
+      _id: userFound._id,
       username: userFound.username,
       email: userFound.email,
     });
@@ -98,7 +98,7 @@ export const verifyToken = async (req, res) => {
     if (!userFound) return res.sendStatus(401);
 
     return res.json({
-      id: userFound._id,
+      _id: userFound._id,
       username: userFound.username,
       email: userFound.email,
     });

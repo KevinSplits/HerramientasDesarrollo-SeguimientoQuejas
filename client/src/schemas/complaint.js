@@ -1,95 +1,82 @@
-import mongoose from "mongoose";
+import { z } from "zod";
 
-const complaintSchema = new mongoose.Schema(
-  {
-    // Campos generales
-    title: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    description: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    category: {
-      type: String,
-      required: true,
-      enum: [
-        "limpieza",
-        "atencion",
-        "fallas-tecnicas",
-        "alimentos-bebidas",
-        "compra-entradas",
-        "infraestructura",
-        "seguridad",
-        "fallas-app",
-      ],
-    },
-    status: {
-      type: String,
-      enum: ["pendiente", "en-progreso", "resuelta"],
-      default: "pendiente",
-    },
-    dateFiled: {
-      type: Date,
-      default: Date.now,
-    },
-    cinema: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Cinema",
-      required: true,
-    },
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
+const ComplaintSchema = z.object({
+  // Campos generales
+  title: z.string({ required_error: "El título es obligatorio" }).min(1, "El título no puede estar vacío"),
 
-    // Campos dinámicos para "limpieza"
-    cleaningArea: { type: String, trim: true },
-    cleaningType: { type: String, trim: true },
-    cleaningStaffPresent: { type: String, trim: true },
+  description: z.string({ required_error: "La descripción es obligatoria" }).min(1, "La descripción no puede estar vacía"),
 
-    // Campos dinámicos para "atencion"
-    attentionArea: { type: String, trim: true },
-    staffBehavior: { type: String, trim: true },
-    staffDescription: { type: String, trim: true },
+  category: z.enum(
+    [
+      "limpieza",
+      "atencion",
+      "fallas-tecnicas",
+      "alimentos-bebidas",
+      "compra-entradas",
+      "infraestructura",
+      "seguridad",
+      "fallas-app",
+    ],
+    { required_error: "Debe seleccionar una categoría" }
+  ),
 
-    // Campos dinámicos para "fallas-tecnicas"
-    roomNumber: { type: String, trim: true },
-    technicalIssue: { type: String, trim: true },
-    movieInterrupted: { type: String, trim: true },
+  status: z.enum(["pendiente", "en-progreso", "resuelta"]).optional().default("pendiente"),
 
-    // Campos dinámicos para "alimentos-bebidas"
-    productAffected: { type: String, trim: true },
-    foodIssue: { type: String, trim: true },
-    purchaseDate: { type: Date },
+  dateFiled: z.coerce.date().optional(), // convierte string a Date automáticamente, opcional
 
-    // Campos dinámicos para "compra-entradas"
-    purchaseLocation: { type: String, trim: true },
-    transactionNumber: { type: String, trim: true },
-    paymentIssue: { type: String, trim: true },
+  cinema: z.string({ required_error: "Debe seleccionar un cine" }).min(1, "El ID del cine es obligatorio"),
 
-    // Campos dinámicos para "infraestructura"
-    infrastructureIssue: { type: String, trim: true },
-    infrastructureLocation: { type: String, trim: true },
-    infrastructureUrgency: { type: String, trim: true },
+  // User opcional en frontend, porque lo asigna backend al crear la queja
+  user: z.string().optional(),
 
-    // Campos dinámicos para "seguridad"
-    securityIncident: { type: String, trim: true },
-    securityIntervention: { type: String, trim: true },
-    physicalRisk: { type: String, trim: true },
+  // Campos dinámicos: limpieza
+  cleaningArea: z.string().optional(),
+  cleaningType: z.string().optional(),
+  cleaningStaffPresent: z.string().optional(),
 
-    // Campos dinámicos para "fallas-app"
-    platform: { type: String, trim: true },
-    appIssue: { type: String, trim: true },
-    appScreenshot: { type: String, trim: true },
-  },
-  {
-    timestamps: true, // Agrega createdAt y updatedAt automáticamente
-  }
-);
+  // Campos dinámicos: atencion
+  attentionArea: z.string().optional(),
+  staffBehavior: z.string().optional(),
+  staffDescription: z.string().optional(),
 
-export default mongoose.model("Complaint", complaintSchema);
+  // Campos dinámicos: fallas-tecnicas
+  roomNumber: z.string().optional(),
+  technicalIssue: z.string().optional(),
+  movieInterrupted: z.string().optional(),
+
+  // Campos dinámicos: alimentos-bebidas
+  productAffected: z.string().optional(),
+  foodIssue: z.string().optional(),
+
+  // Campos dinámicos: compra-entradas
+  // Manejo especial de purchaseDate para aceptar fecha vacía sin error
+  purchaseDate: z
+    .string()
+    .optional()
+    .refine(
+      (val) => !val || !isNaN(Date.parse(val)),
+      { message: "Fecha inválida" }
+    )
+    .transform((val) => (val ? new Date(val) : undefined)),
+
+  purchaseLocation: z.string().optional(),
+  transactionNumber: z.string().optional(),
+  paymentIssue: z.string().optional(),
+
+  // Campos dinámicos: infraestructura
+  infrastructureIssue: z.string().optional(),
+  infrastructureLocation: z.string().optional(),
+  infrastructureUrgency: z.string().optional(),
+
+  // Campos dinámicos: seguridad
+  securityIncident: z.string().optional(),
+  securityIntervention: z.string().optional(),
+  physicalRisk: z.string().optional(),
+
+  // Campos dinámicos: fallas-app
+  platform: z.string().optional(),
+  appIssue: z.string().optional(),
+  appScreenshot: z.string().nullable().optional(),
+});
+
+export default ComplaintSchema;

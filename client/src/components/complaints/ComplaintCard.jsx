@@ -16,7 +16,7 @@ export function ComplaintCard({ complaint, onDelete }) {
       <header className="flex flex-wrap justify-between items-start gap-4">
         <h2 className="text-2xl font-bold text-white">{complaint.title}</h2>
         <div className="flex gap-2">
-          <Button asChild className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+          <Button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
             <Link to={`/complaints/${complaint._id}`}>Editar</Link>
           </Button>
           <Button

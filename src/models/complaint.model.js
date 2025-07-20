@@ -7,6 +7,11 @@ const complaintSchema = new mongoose.Schema(
     category: { type: String, required: true, trim: true },
     cinema: { type: mongoose.Schema.Types.ObjectId, ref: "Cinema", required: true },
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    status: {
+      type: String,
+      enum: ["pendiente", "resuelto"],
+      default: "pendiente",
+    },
     // Campos dinámicos para "limpieza"
     cleaningArea: { type: String, trim: true },
     cleaningType: { type: String, trim: true },

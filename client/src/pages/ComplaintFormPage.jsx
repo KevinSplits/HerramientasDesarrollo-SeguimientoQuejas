@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import ComplaintSchema from "../schemas/complaint";
 import { Button, Card, Input, Label } from "../components/ui";
 import { Textarea } from "../components/ui/Textarea";
 import { useComplaints } from "../context/complaintsContext";
@@ -11,25 +13,103 @@ export function ComplaintFormPage() {
   const navigate = useNavigate();
   const params = useParams();
   const [cinemas, setCinemas] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState(""); // Estado para la categoría seleccionada
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   const {
     register,
     setValue,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+    reset,
+    getValues,
+  } = useForm({
+    resolver: zodResolver(ComplaintSchema),
+  });
 
-  const onSubmit = async (data) => {
-    if (params.id) {
-      await updateComplaint(params.id, data);
-    } else {
-      await createComplaint(data);
-    }
-    navigate("/complaints");
+  const handleCategoryChange = (e) => {
+    const newCategory = e.target.value;
+    setSelectedCategory(newCategory);
+    setValue("category", newCategory);
+    reset({
+      ...getValues(),
+      category: newCategory,
+      cleaningArea: "",
+      cleaningType: "",
+      cleaningStaffPresent: "",
+      attentionArea: "",
+      staffBehavior: "",
+      staffDescription: "",
+      roomNumber: "",
+      technicalIssue: "",
+      movieInterrupted: "",
+      productAffected: "",
+      foodIssue: "",
+      purchaseDate: "",
+      purchaseLocation: "",
+      transactionNumber: "",
+      paymentIssue: "",
+      infrastructureIssue: "",
+      reportedToStaff: "",
+      attachEvidence: "",
+      securityIncident: "",
+      securityIntervention: "",
+      physicalRisk: "",
+      platform: "",
+      appIssue: "",
+      appScreenshot: null,
+    });
   };
 
-  // Cargar cines
+  const onSubmit = async (data) => {
+    try {
+      // ✅ Imprimir sin causar error circular
+      const { appScreenshot, ...safeData } = data;
+
+      console.log("Datos antes de limpiar (sin archivo):", safeData);
+      if (appScreenshot && appScreenshot.length > 0) {
+        console.log("Archivo seleccionado:", appScreenshot[0].name);
+      }
+
+      const userId = localStorage.getItem("userId") || "demoUserId";
+      const cleanData = { ...data, user: userId };
+
+      Object.keys(cleanData).forEach((key) => {
+        if (
+          cleanData[key] === "" ||
+          cleanData[key] === null ||
+          cleanData[key] === undefined
+        ) {
+          delete cleanData[key];
+        }
+      });
+
+      if (cleanData.purchaseDate) {
+        const dateObj = new Date(cleanData.purchaseDate);
+        if (isNaN(dateObj.getTime())) {
+          delete cleanData.purchaseDate;
+        } else {
+          cleanData.purchaseDate = dateObj.toISOString();
+        }
+      }
+
+      if (cleanData.appScreenshot instanceof File || cleanData.appScreenshot == null) {
+        delete cleanData.appScreenshot;
+      }
+
+      console.log("Datos limpios para enviar:", cleanData);
+
+      if (params.id) {
+        await updateComplaint(params.id, cleanData);
+      } else {
+        await createComplaint(cleanData);
+      }
+
+      navigate("/complaints");
+    } catch (error) {
+      console.error("Error al enviar la queja:", error);
+    }
+  };
+
   useEffect(() => {
     const fetchCinemas = async () => {
       try {
@@ -44,7 +124,6 @@ export function ComplaintFormPage() {
     fetchCinemas();
   }, []);
 
-  // Cargar queja (si es edición)
   useEffect(() => {
     const loadComplaint = async () => {
       if (params.id) {
@@ -52,8 +131,8 @@ export function ComplaintFormPage() {
         setValue("title", complaint.title);
         setValue("description", complaint.description);
         setValue("category", complaint.category);
-        setValue("cinema", complaint.cinema._id); // Usar ._id para cinema
-        setSelectedCategory(complaint.category); // Establecer la categoría seleccionada
+        setValue("cinema", complaint.cinema._id);
+        setSelectedCategory(complaint.category);
       }
     };
     loadComplaint();
@@ -73,10 +152,7 @@ export function ComplaintFormPage() {
 
           <div>
             <Label htmlFor="description">Descripción</Label>
-            <Textarea
-              rows="3"
-              {...register("description", { required: true })}
-            />
+            <Textarea rows="3" {...register("description", { required: true })} />
             {errors.description && (
               <p className="text-red-500 text-xs italic">Requerido</p>
             )}
@@ -106,7 +182,7 @@ export function ComplaintFormPage() {
               {...register("category", { required: true })}
               className="w-full p-2 rounded-md bg-zinc-800 text-white"
               defaultValue=""
-              onChange={(e) => setSelectedCategory(e.target.value)} // Actualizar la categoría seleccionada
+              onChange={handleCategoryChange}
             >
               <option value="" disabled>
                 Selecciona una categoría
@@ -121,9 +197,7 @@ export function ComplaintFormPage() {
               <option value="fallas-app">📱 Fallas en la App / Web del cine</option>
             </select>
             {errors.category && (
-              <p className="text-red-500 text-xs italic">
-                Selecciona una categoría
-              </p>
+              <p className="text-red-500 text-xs italic">Selecciona una categoría</p>
             )}
           </div>
 
@@ -145,7 +219,9 @@ export function ComplaintFormPage() {
                 )}
               </div>
               <div>
-                <Label htmlFor="cleaningStaffPresent">¿Hubo personal de limpieza presente?</Label>
+                <Label htmlFor="cleaningStaffPresent">
+                  ¿Hubo personal de limpieza presente?
+                </Label>
                 <select
                   {...register("cleaningStaffPresent", { required: true })}
                   className="w-full p-2 rounded-md bg-zinc-800 text-white"
@@ -238,7 +314,10 @@ export function ComplaintFormPage() {
               </div>
               <div>
                 <Label htmlFor="purchaseDate">Fecha/hora de compra</Label>
-                <Input {...register("purchaseDate", { required: true })} type="datetime-local" />
+                <Input
+                  {...register("purchaseDate", { required: true })}
+                  type="datetime-local"
+                />
                 {errors.purchaseDate && (
                   <p className="text-red-500 text-xs italic">Requerido</p>
                 )}
@@ -387,9 +466,16 @@ export function ComplaintFormPage() {
               </div>
             </div>
           )}
+
+          {/* Mostrar errores globales para debug */}
+          {Object.keys(errors).length > 0 && (
+            <pre className="bg-red-100 text-red-700 p-2 rounded my-2 whitespace-pre-wrap">
+              {JSON.stringify(errors, null, 2)}
+            </pre>
+          )}
+
           {/* Botones */}
           <div className="flex justify-between mt-6 gap-x-4">
-            {/* Botón "Enviar Queja" */}
             <Button
               type="submit"
               className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded flex-1"
@@ -397,32 +483,29 @@ export function ComplaintFormPage() {
               Enviar Queja
             </Button>
 
-            {/* Botón "Reestablecer" */}
             <Button
               type="button"
               className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded flex-1"
               onClick={() => {
-                reset(); // Limpia todos los campos del formulario
-                setSelectedCategory(""); // Reinicia la categoría seleccionada
+                reset();
+                setSelectedCategory("");
               }}
             >
               Reestablecer
             </Button>
 
-            {/* Botón "Cancelar Queja" */}
             <Button
               type="button"
-              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded flex-1 "
+              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded flex-1"
               onClick={() => {
                 if (window.confirm("¿Estás seguro de que deseas cancelar la queja?")) {
-                  navigate("/dashboard"); // Redirige al dashboard principal
+                  navigate("/dashboard");
                 }
               }}
             >
               Cancelar Queja
             </Button>
           </div>
-        
         </form>
       </Card>
     </div>

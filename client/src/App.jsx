@@ -16,6 +16,7 @@ import { CinemaFormPage } from "./pages/CinemaFormPage";
 import { ComplaintFormPage } from "./pages/ComplaintFormPage";
 import { CinemasPage } from "./pages/CinemasPage";
 import { ComplaintsPage } from "./pages/ComplaintsPage";
+import PendingComplaintsPage from "./pages/PendingComplaintsPage";
 import { StatsPage } from "./pages/StatsPage";
 
 
@@ -50,7 +51,9 @@ function App() {
                     <Route path="/complaints" element={<ComplaintsPage />} />
                     <Route path="/add-complaint" element={<ComplaintFormPage />} />
                     <Route path="/complaints/:id" element={<ComplaintFormPage />} />
+                    <Route path="/complaints/pending" element={<PendingComplaintsPage />} />
 
+                    {/* Estadísticas */}
                     <Route path="/stats" element={< StatsPage/>} />
 
                     {/* Perfil */}
@@ -65,6 +68,5 @@ function App() {
     </AuthProvider>
   );
 }
-
 
 export default App;

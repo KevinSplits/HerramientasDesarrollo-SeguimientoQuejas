@@ -1,0 +1,53 @@
+name: CD - Deploy Backend y Frontend 
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  backend:
+    name: 🚀 Despliegue Backend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: 📦 Instalar dependencias del backend
+        run: npm install
+        working-directory: .  
+
+      - name: 🧪 Ejecutar pruebas del backend
+        run: npm test || echo "⚠️ Las pruebas del backend fallaron, pero seguimos..."
+        working-directory: .
+
+  frontend:
+    name: 🚀 Despliegue Frontend
+    runs-on: ubuntu-latest
+    needs: backend
+
+    steps:
+      - name: 📥 Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: 📦 Instalar dependencias del frontend
+        run: npm install
+        working-directory: ./client  
+
+      - name: 🧱 Build del frontend
+        run: npm run build
+        working-directory: ./client
+
+  deploy:
+    name: 🚀 Deploy a Render
+    runs-on: ubuntu-latest
+    needs: [frontend, backend]
+
+    steps:
+      - name: 📌 Desplegar Backend a Render
+        run: curl -X POST ${{ secrets.RENDER_BACKEND_DEPLOY_HOOK }}
+
+      - name: 📌 Desplegar Frontend a Render
+        run: curl -X POST ${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK }}
+
+

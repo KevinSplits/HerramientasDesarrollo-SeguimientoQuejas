@@ -76,7 +76,7 @@ function Register() {
           {errors.confirmPassword?.message && (
             <p className="text-red-500">{errors.confirmPassword?.message}</p>
           )}
-          <Button>Submit</Button>
+          <center><Button className="bg-rose-700">Submit</Button></center>
         </form>
         <p>
           Already Have an Account?

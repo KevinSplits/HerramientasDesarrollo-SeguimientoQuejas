@@ -53,7 +53,7 @@ export function LoginPage() {
           />
           <p>{errors.password?.message}</p>
 
-          <Button>Login</Button>
+          <center><Button className="bg-blue-800">Login</Button></center>
         </form>
 
         <p className="flex gap-x-2 justify-between">

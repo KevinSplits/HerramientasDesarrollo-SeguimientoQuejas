@@ -6,7 +6,7 @@ import ComplaintSchema from "../schemas/complaint";
 import { Button, Card, Input, Label } from "../components/ui";
 import { Textarea } from "../components/ui/Textarea";
 import { useComplaints } from "../context/complaintsContext";
-import axios from "axios";
+import axios from "../api/axios";
 
 export function ComplaintFormPage() {
   const { createComplaint, getComplaint, updateComplaint } = useComplaints();

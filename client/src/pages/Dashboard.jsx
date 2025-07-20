@@ -67,8 +67,22 @@ function Dashboard() {
           </Link>
         </div>
 
+        {/* 🔄 Nueva sección: Gestión de Resolución */}
+        <div className="bg-zinc-800 p-6 rounded-2xl shadow-lg">
+          <h2 className="text-xl font-semibold mb-2">Gestionar Resoluciones</h2>
+          <p className="text-slate-400 mb-4">
+            Visualiza quejas pendientes y márcalas como resueltas fácilmente.
+          </p>
+          <Link
+            to="/complaints/pending"
+            className="bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded-md"
+          >
+            Ver Quejas Pendientes
+          </Link>
+        </div>
+
         {/* Estadísticas */}
-        <div className="bg-zinc-800 p-6 rounded-2xl shadow-lg md:col-span-2">
+        <div className="bg-zinc-800 p-6 rounded-2xl shadow-lg ">
           <h2 className="text-xl font-semibold mb-2">Estadísticas</h2>
           <p className="text-slate-400 mb-4">
             Consulta datos estadísticos sobre la atención y resolución de quejas.

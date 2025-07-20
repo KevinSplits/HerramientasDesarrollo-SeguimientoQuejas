@@ -113,7 +113,7 @@ export function ComplaintFormPage() {
   useEffect(() => {
     const fetchCinemas = async () => {
       try {
-        const res = await axios.get("http://localhost:4000/api/cinemas", {
+        const res = await axios.get("/cinemas", {
           withCredentials: true,
         });
         setCinemas(res.data);
